@@ -1,3 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Car HTTP Dashboard</title>
+
+<style>
+body {
+  background: #111;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+button {
+  width: 80px;
+  height: 60px;
+  font-size: 18px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+}
+
+.data-box {
+  background: #222;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🚗 Smart Car (HTTP)</h1>
+
+<!-- CONTROLS -->
+<div>
+  <button onclick="send('FORWARD')">⬆️</button><br>
+  <button onclick="send('LEFT')">⬅️</button>
+  <button onclick="send('STOP')">⏹</button>
+  <button onclick="send('RIGHT')">➡️</button><br>
+  <button onclick="send('BACKWARD')">⬇️</button>
+</div>
+
+<!-- DATA -->
+<h2>📊 Data</h2>
+
+<div class="data-box">
+  Distance: <span id="distance">--</span> cm
+</div>
+
+<div class="data-box">
+  IR Status: <span id="ir">--</span>
+</div>
+
+<div class="data-box">
+  Car State: <span id="state">--</span>
+</div>
+
 <script>
 
 // ------------------ ThingSpeak ------------------
@@ -5,47 +66,28 @@ const channelID = "3293937";
 const readAPIKey = "9KP4ZPXF8XZJDLVK";
 const writeAPIKey = "HCYB1DOCOVHSBBVJ";
 
-// ------------------ SEND COMMANDS ------------------
+// SEND COMMANDS
 function send(cmd) {
   let url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field1=${cmd}`;
-  fetch(url)
-    .then(res => console.log("Command sent:", cmd));
-}
-
-function buzzer(cmd) {
-  let url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field4=${cmd}`;
   fetch(url);
 }
 
-function sendMessage() {
-  let text = document.getElementById("msg").value;
-
-  if(text.length > 64) {
-    alert("Max 64 characters!");
-    return;
-  }
-
-  let url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field5=${encodeURIComponent(text)}`;
-  fetch(url);
-}
-
-// ------------------ READ DATA ------------------
+// READ DATA
 function readData() {
   let url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
 
   fetch(url)
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-
       document.getElementById("distance").innerText = data.field3 || "--";
       document.getElementById("ir").innerText = data.field6 || "--";
       document.getElementById("state").innerText = data.field7 || "--";
-
-    })
-    .catch(err => console.log("Error:", err));
+    });
 }
 
-// ------------------ POLLING ------------------
-setInterval(readData, 15000); // every 15 seconds
+setInterval(readData, 15000);
 
 </script>
+
+</body>
+</html>
