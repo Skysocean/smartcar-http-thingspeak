@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Car HTTP Dashboard</title>
+
+<style>
+body {
+  background: #111;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+button {
+  width: 80px;
+  height: 60px;
+  font-size: 18px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+}
+
+.data-box {
+  background: #222;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🚗 Smart Car (HTTP)</h1>
+
+<!-- CONTROLS -->
+<div>
+  <button onclick="send('1')">⬆️</button><br>
+  <button onclick="send('3')">⬅️</button>
+  <button onclick="send('0')">⏹</button>
+  <button onclick="send('4')">➡️</button><br>
+  <button onclick="send('2')">⬇️</button>
+</div>
+
+<!-- DATA -->
+<h2>📊 Data</h2>
+
+<div class="data-box">
+  Distance: <span id="distance">--</span> cm
+</div>
+
+<div class="data-box">
+  IR Status: <span id="ir">--</span>
+</div>
+
+<div class="data-box">
+  Car State: <span id="state">--</span>
+</div>
+
+<script>
+
+// ------------------ ThingSpeak ------------------
+const channelID = "3293937";
+const readAPIKey = "9KP4ZPXF8XZJDLVK";
+const writeAPIKey = "HCYB1DOCOVHSBBVJ";
+
+// SEND COMMANDS
+function send(cmd) {
+  let url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field1=${cmd}`;
+  fetch(url);
+}
+
+// READ DATA
+function readData() {
+  let url = `https://api.thingspeak.com/channels/${channelID}/feeds/last.json?api_key=${readAPIKey}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("distance").innerText = data.field3 || "--";
+      document.getElementById("ir").innerText = data.field6 || "--";
+      document.getElementById("state").innerText = data.field7 || "--";
+    });
+}
+
+setInterval(readData, 15000);
+
+</script>
+
+</body>
+</html>
